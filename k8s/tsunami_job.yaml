@@ -1,0 +1,14 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: tsunami-scanner
+spec:
+  ttlSecondsAfterFinished: 100
+  template:
+    spec:
+      containers:
+      - name: tsunami
+        image: heywoodlh/tsunami
+        command: ["java", "-cp", "/usr/tsunami/tsunami.jar:/usr/tsunami/plugins/*", "-Dtsunami-config.location=/usr/tsunami/tsunami.yaml", "com.google.tsunami.main.cli.TsunamiCli"]
+        args: ["--ip-v4-target", "127.0.0.1"]
+      restartPolicy: Never

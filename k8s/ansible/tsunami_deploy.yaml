@@ -1,0 +1,43 @@
+---
+- hosts: localhost
+  become: no
+  vars:
+    ansible_python_interpreter: '{{ ansible_playbook_python }}'
+    image_name: heywoodlh/tsunami
+    image_tag: latest
+    replicas: 2
+  tasks:
+    - name: Retrieve helm binary archive.
+      unarchive:
+        src: https://get.helm.sh/helm-v3.2.1-linux-amd64.tar.gz
+        dest: /tmp
+        creates: /usr/local/bin/helm
+        remote_src: yes
+
+    - name: Move helm binary into place.
+      command: cp /tmp/linux-amd64/helm /usr/local/bin/helm
+      args:
+        creates: /usr/local/bin/helm
+
+    - name: Create a Deployment for Tsunami Scanner
+      community.kubernetes.k8s:
+        state: present
+        definition:
+          apiVersion: batch/v1
+          kind: Job
+          metadata:
+            name: tsunami-scanner
+            namespace: default
+          spec:
+            ttlSecondsAfterFinished: 100
+            template:
+              metadata:
+              spec:
+                containers:
+                - name: tsunami
+                  image: "{{ image_name }}:{{ image_tag }}"
+                  imagePullPolicy: IfNotPresent
+                  command: ["java", "-cp", "/usr/tsunami/tsunami.jar:/usr/tsunami/plugins/*", "-Dtsunami-config.location=/usr/tsunami/tsunami.yaml", "com.google.tsunami.main.cli.TsunamiCli"]
+                  args: ["--ip-v4-target", "127.0.0.1"]
+
+

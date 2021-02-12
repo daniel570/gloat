@@ -1,0 +1,48 @@
+---
+- hosts: localhost
+  become: yes
+  vars:
+    ansible_python_interpreter: '{{ ansible_playbook_python }}'
+
+  tasks:
+    - name: Retrieve helm binary archive.
+      unarchive:
+        src: https://get.helm.sh/helm-v3.2.1-linux-amd64.tar.gz
+        dest: /tmp
+        creates: /usr/local/bin/helm
+        remote_src: yes
+
+    - name: Move helm binary into place.
+      command: cp /tmp/linux-amd64/helm /usr/local/bin/helm
+      args:
+        creates: /usr/local/bin/helm
+
+    - name: Add Bitnami's chart repository.
+      community.kubernetes.helm_repository:
+        name: bitnami
+        repo_url: "https://charts.bitnami.com/bitnami"
+
+
+    - name: Ensure Pip and dev dependencies are installed.
+      package:
+        name:
+          - python-pip
+          - python-dev
+        state: present
+
+    - name: Ensure pyhelm and dependencies are installed.
+      pip:
+        name:
+          - pyhelm
+        state: present
+
+    - name: Install helm chart
+      helm:
+        host: localhost
+        chart:
+          source:
+            type: git
+            location: https://github.com/stakater-charts/helloworld.git
+        state: present
+        name: hello-world
+        namespace: default

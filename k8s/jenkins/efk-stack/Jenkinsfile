@@ -1,0 +1,46 @@
+pipeline {
+    agent any
+    stages {
+        
+    //stage("clean WS"){
+        //cleanWs()
+    //}
+
+
+    stage("helm deploy elasticsearch")
+    {
+// This by default will create 3 master pods, 2 data pods and 2 client pods of Elasticsearch.
+        steps {
+            sh "helm install stable/elasticsearch --namespace logging --set data.persistence.size=1Gi --generate-name"
+        }
+    }
+
+
+    stage("helm deploy elasticsearch retention")
+    {
+// Create elasticsearch-curator cronjob that ensures data retention in Elasticsearch equal to 7 days by default.
+        steps {
+            sh "helm install stable/elasticsearch-curator --namespace logging --set config.elasticsearch.hosts={'es-elasticsearch-client'} --generate-name"
+        }
+    }
+
+    stage("helm deploy fluentd agent")
+    {
+// Creates DaemonSet on all nodes for fluentd agent
+        steps {
+            sh "helm install stable/fluentd-elasticsearch --namespace logging --set elasticsearch.host=es-elasticsearch-client --generate-name"
+        }
+    }
+
+
+    stage("helm deploy kibana")
+    {
+// Create pods with Kibana
+        steps {
+            sh "helm install --namespace logging --set env.ELASTICSEARCH_URL=http://es-elasticsearch-client:9200 stable/kibana --generate-name"
+        }
+    }
+
+
+    }
+}

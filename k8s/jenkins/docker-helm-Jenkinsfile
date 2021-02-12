@@ -1,0 +1,12 @@
+pipeline {
+    agent {
+        docker { image 'dtzar/helm-kubectl:3.5.2' }
+    }
+    stages {
+        stage('Deploy') {
+            steps {
+                sh 'helm list'
+            }
+        }
+    }
+}
