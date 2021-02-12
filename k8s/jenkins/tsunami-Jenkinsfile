@@ -1,0 +1,40 @@
+pipeline {
+    agent any
+    stages {
+        
+    stage("clean workspace")
+    {
+        steps {
+            cleanWs()
+        }
+    }
+        
+    stage("checkout from SCM")
+    {
+        steps {
+          sh "git clone --branch master https://github.com/daniel570/gloat.git"   
+          
+        }
+    }
+
+    stage("run ansible playbooks to configure host")
+    {
+        steps {
+            sh "cd gloat/k8s; kubectl apply -f tsunami_job.yaml; sleep 10"
+        }
+    }
+
+    stage("get job id")
+    {
+        steps {
+            sh '''pods=$(kubectl get pods --selector=job-name=tsunami-scanner --output=jsonpath='{.items[*].metadata.name}'); echo $pods
+            kubectl logs $pods; kubectl delete job tsunami-scanner
+            '''
+
+        }
+    }
+
+
+
+    }
+}
