@@ -26,6 +26,7 @@ terraform apply
 3. add kubeconfig to path, add user to kubeconfig
   
 terraform output kubeconfig > ~/.kube/eks-cluster
+
 export KUBECONFIG=~/.kube/eks-cluster
   
 aws eks update-kubeconfig --name <cluster-name> --region us-east-1
