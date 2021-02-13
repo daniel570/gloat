@@ -34,7 +34,34 @@ pipeline {
         }
     }
 
-
-
+    }
+    post {
+        always {
+            script {
+                currentBuild.result = currentBuild.result ?: 'SUCCESS'
+                emailNotification()
+                }
+        }
     }
 }
+
+def emailNotification() {
+    HOSTNAME = sh(script: 'hostname', returnStdout: true).trim()
+    body = "Hi Your Build ${env.JOB_NAME} #${env.BUILD_NUMBER} " +
+            "with ${currentBuild.result}:\n" +
+            "Branch: ${env.BRANCH_NAME}\n" +
+            "The Devops team"
+    subject = "Build ${env.JOB_NAME} #${env.BUILD_NUMBER} ${currentBuild.result}"
+    cc = "danielharsheffer@gmail.com"
+    sendEmail(subject, body, cc)
+}
+
+def sendEmail(subject, body, cc) {
+    emailext (
+            subject: subject,
+            recipientProviders: [developers()],
+            body: body,
+            to: cc
+    )
+}
+
