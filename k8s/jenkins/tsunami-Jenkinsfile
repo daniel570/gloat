@@ -17,18 +17,18 @@ pipeline {
         }
     }
 
-    stage("run ansible playbooks to configure host")
+    stage("run tsunami scanner job")
     {
         steps {
             sh "cd gloat/k8s; kubectl apply -f tsunami_job.yaml; sleep 10"
         }
     }
 
-    stage("get job id")
+    stage("get job id and delete it after execution")
     {
         steps {
             sh '''pods=$(kubectl get pods --selector=job-name=tsunami-scanner --output=jsonpath='{.items[*].metadata.name}'); echo $pods
-            kubectl logs $pods; kubectl delete job tsunami-scanner
+            kubectl logs $pods > report.txt; kubectl delete job tsunami-scanner
             '''
 
         }
@@ -46,7 +46,6 @@ pipeline {
 }
 
 def emailNotification() {
-    HOSTNAME = sh(script: 'hostname', returnStdout: true).trim()
     body = "Hi Your Build ${env.JOB_NAME} #${env.BUILD_NUMBER} " +
             "with ${currentBuild.result}:\n" +
             "Branch: ${env.BRANCH_NAME}\n" +
@@ -60,6 +59,7 @@ def sendEmail(subject, body, cc) {
     emailext (
             subject: subject,
             recipientProviders: [developers()],
+            attachmentsPattern: 'report.txt',
             body: body,
             to: cc
     )
