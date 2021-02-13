@@ -23,10 +23,13 @@ terraform apply
 
 * wait for infrastructure to come up, may take some time...
 
-3. add user to kubeconfig
-
-aws eks update-kubeconfig --name <cluster-name> --region us-east-1
+3. add kubeconfig to path, add user to kubeconfig
   
+terraform output kubeconfig > ~/.kube/eks-cluster
+export KUBECONFIG=~/.kube/eks-cluster
+  
+aws eks update-kubeconfig --name <cluster-name> --region us-east-1
+
 4. install jenkins on eks cluster
 
 cd gloat/k8s/jenkins
