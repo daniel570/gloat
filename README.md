@@ -72,3 +72,4 @@ aws configure
 
 kubectl create clusterrolebinding ops-user-cluster-admin-binding-system --clusterrole=cluster-admin --user=system:serviceaccount:default:default
 
+10. create jenkins pipeline job, copy contents from gloat/k8s/jenkins/Jenkinsfile into 'pipeline script definition' section of the job configuration 
