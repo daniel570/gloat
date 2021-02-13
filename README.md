@@ -73,3 +73,9 @@ aws configure
 kubectl create clusterrolebinding ops-user-cluster-admin-binding-system --clusterrole=cluster-admin --user=system:serviceaccount:default:default
 
 10. create jenkins pipeline job, copy contents from gloat/k8s/jenkins/Jenkinsfile into 'pipeline script definition' section of the job configuration 
+
+11. edit 'cc' section of the pipeline emailNotification definition and add your email address
+
+12. execute jenkins job
+
+13. receive email containing job information, and vulnerabilities report from Tsunami Scanner job
