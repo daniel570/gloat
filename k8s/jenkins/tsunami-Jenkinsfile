@@ -49,6 +49,7 @@ def emailNotification() {
     body = "Hi Your Build ${env.JOB_NAME} #${env.BUILD_NUMBER} " +
             "with ${currentBuild.result}:\n" +
             "Branch: ${env.BRANCH_NAME}\n" +
+            "See report.txt file attached for details\n"
             "The Devops team"
     subject = "Build ${env.JOB_NAME} #${env.BUILD_NUMBER} ${currentBuild.result}"
     cc = "danielharsheffer@gmail.com"
