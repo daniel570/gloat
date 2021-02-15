@@ -2,5 +2,4 @@
 
 newip=$(cat hosts.lst)
 
-echo $newip
 sed -i -e 's/[0-9]\{1,3\}.[0-9]\{1,3\}.[0-9]\{1,3\}.[0-9]\{1,3\}/'$newip'/g'   tsunami_job.yaml
